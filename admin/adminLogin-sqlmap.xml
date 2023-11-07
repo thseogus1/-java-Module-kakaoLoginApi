@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminLogin">
+
+	<select id="selectJoinIdCnt" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		/*queryID = adminLogin.selectJoinIdCnt */
+		SELECT COUNT(*)
+		  FROM GNRLMBER
+		 WHERE 1=1
+		   AND USER_ID COLLATE utf8mb4_general_ci = CAST(#{id} AS CHAR)
+		]]>
+	</select>
+
+	<select id="selectIdCnt" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		/*queryID = adminLogin.selectIdCnt */
+		SELECT COUNT(*)
+		  FROM GNRLMBER
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   AND ADMISSION = 'P'	/*승인여부*/
+		   /*AND AUTH_CD = 'ROLE_ADMIN'*/	/*권한코드*/
+		   AND USER_ID COLLATE utf8mb4_general_ci = CAST(#{userId} AS CHAR)
+		  
+		]]>
+	</select>
+<!-- 	   AND USER_PASS = #{pw} -->
+
+	 
+	<select id="selectIdDupCheck" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		/*queryID = adminLogin.selectIdDupCheck */
+		SELECT COUNT(*)
+		  FROM GNRLMBER
+		 WHERE USER_ID COLLATE utf8mb4_general_ci = CAST(#{user_id} AS CHAR)
+		]]>
+	</select>
+
+	<select id="selectIdDupCheckOld" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		/*queryID = adminLogin.selectIdDupCheck */
+		SELECT COUNT(*)
+		  FROM GNRLMBER
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   AND ADMISSION = 'P'	/*승인여부*/
+		   AND USER_ID COLLATE utf8mb4_general_ci = CAST(#{user_id} AS CHAR)
+		]]>
+	</select>
+
+	<select id="selectMemberInfo" parameterType="hashmap" resultType="CamelMap">
+		<![CDATA[
+		/*queryID = adminLogin.selectMemberInfo */
+		SELECT USER_ID
+			 , USER_NAME
+			 , USER_PASS
+			 , USER_MOBILE
+			 , USER_EMAIL
+			 , AGENCY_GUBUN_CD
+			 , AGENCY_CD
+			 , AGENCY_NAME
+			 , AUTH_CD
+			 , ADMISSION
+		  FROM GNRLMBER
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   /*AND ADMISSION = 'P'*/	/*승인여부*/
+		   /*AND AUTH_CD = 'ROLE_ADMIN'*/	/*권한코드*/
+		   AND USER_ID COLLATE utf8mb4_general_ci = CAST(#{userId} AS CHAR)
+		]]>
+	</select>
+<!-- 	AND USER_PASS = #{pw} -->
+
+
+	<select id="selectFindId" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+		/*queryID = adminLogin.selectFindId */
+		SELECT USER_ID
+		  FROM GNRLMBER
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   AND ADMISSION = 'P'	/*승인여부*/
+		   AND USER_NAME = #{user_name}
+		   AND USER_MOBILE = #{user_mobile}
+		]]>
+	</select>
+
+	<select id="selectPassword" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+		/*queryID = adminLogin.selectPassword */
+		SELECT USER_ID, USER_PASS
+		  FROM GNRLMBER
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   AND ADMISSION = 'P'	/*승인여부*/
+		   AND USER_NAME = #{user_name}
+		   AND USER_MOBILE = #{user_mobile}
+		]]>
+	</select>
+
+	<update id="updatePassword" parameterType="hashmap">
+		<![CDATA[
+		/*queryID = adminLogin.updatePassword */
+		UPDATE GNRLMBER 
+		   SET USER_PASS = #{USER_PASS}
+		     , LAST_MODIFY_ID = 'USER_INIT'
+		     , LAST_MODIFY_DATE = SYSDATE()
+		 WHERE USE_YN = 'Y'	/* 사용유무*/
+		   AND ADMISSION = 'P'	/*승인여부*/
+		   AND USER_ID COLLATE utf8mb4_general_ci = CAST(#{USER_ID} AS CHAR)
+		]]>
+	</update>
+
+	<insert id="insertRegistReq" parameterType="hashmap">
+		<![CDATA[
+		/*queryID = adminLogin.insertRegistReq */
+		INSERT GNRLMBER (
+			USER_ID
+			, USER_NAME
+			, USER_PASS
+			, USER_MOBILE
+			, USER_EMAIL
+			, AGENCY_GUBUN_CD
+			, AGENCY_CD
+			, AGENCY_NAME
+			, USER_ZIP
+			, USER_ADDR
+			, USER_ADDR_DETAIL
+			, ADMISSION
+			, USE_YN
+			, AUTH_CD
+			, FIRST_REGIST_ID
+			, FIRST_REGIST_DATE
+			, LAST_MODIFY_ID
+			, LAST_MODIFY_DATE
+			, ACCESS_TOKEN
+		)
+		VALUES (
+			#{userId}
+			, #{nickname}
+			, '1234'
+			, '010-1234-5678'
+			, ''
+			, '0101'
+			, #{agencyCd}
+			, ''
+			, '' /*user_zip*/
+			, '' /*user_addr*/
+			, '' /*user_addr_detail*/
+			, #{admission}
+			, 'Y'
+			, #{authCd}
+			, #{userId}
+			, SYSDATE()
+			, #{userId}
+			, SYSDATE()
+			, #{accessToken}
+		) 
+		]]>
+		<selectKey keyProperty="USER_ID" resultType="String" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<select id ="selectNameDuplicateCheck" parameterType="String" resultType="String">
+		<![CDATA[
+		/*queryID = adminLogin.selectNameDuplicateCheck */
+		SELECT '1'
+		   FROM GNRLMBER
+		  WHERE USER_NAME = #{nickName}
+		]]>
+	</select>
+	
+	<select id="selectKakao" parameterType="HashMap" resultType="String" >
+		/*queryID = adminLogin.selectKakao */
+		SELECT '1'
+		  FROM GNRLMBER
+		 WHERE USER_ID COLLATE utf8mb4_general_ci = CAST(#{userId} AS CHAR)
+		   /*AND USER_NAME = 
+		   AND USER_EMAIL = */
+	</select>
+	
+	<select id="selectKakaoToken" parameterType="HashMap" resultType="String" >
+		<![CDATA[
+		/*queryID = adminLogin.selectKakaoToken*/
+		SELECT ACCESS_TOKEN
+		  FROM GNRLMBER
+		 WHERE USER_ID COLLATE utf8mb4_general_ci = CAST(#{userId} AS CHAR)
+		  /* AND USER_NAME = 
+		   AND USER_EMAIL = */
+		]]>
+	</select>
+	
+	<insert id="insertKakao" parameterType="Map">
+		<![CDATA[
+		/*queryID = adminLogin.insertKakao */
+		INSERT INTO GNRLMBER (
+		  	   USER_ID
+			 , USER_NAME
+			 , USER_PASS
+			 , USER_MOBILE
+			 , USER_EMAIL
+			 , AGENCY_GUBUN_CD
+			 , AGENCY_CD
+			 , AGENCY_NAME
+			 , USER_ZIP
+			 , USER_ADDR
+			 , USER_ADDR_DETAIL
+			 , ADMISSION
+			 , USE_YN
+			 , AUTH_CD
+			 , FIRST_REGIST_ID
+			 , FIRST_REGIST_DATE
+			 , LAST_MODIFY_ID
+			 , LAST_MODIFY_DATE
+			 , ACCESS_TOKEN
+	  	 ) VALUES (
+		  	   #{userId}
+		  	 , #{nickname}
+		  	 , ''
+		  	 , ''
+		  	 , ''
+		  	 , '0102'
+		  	 , '1'
+		  	 , '카카오'
+		  	 , ''
+		  	 , ''
+		  	 , ''
+		  	 , 'P'
+		  	 , 'Y'
+		  	 , 'ROLE_MEMBER'
+		  	 , #{userId}
+		  	 , NOW()
+		  	 , #{userId}
+		  	 , NOW()
+		  	 , #{access_Token}
+		  	 )
+		]]>
+	</insert>
+	
+	<update id="updateTokenKakao" parameterType="Map">
+		<![CDATA[
+		/*queryID = adminLogin.updateTokenKakao*/
+		UPDATE GNRLMBER 
+		   SET ACCESS_TOKEN = #{access_Token}
+		     , LAST_MODIFY_DATE = NOW()
+		 WHERE USER_ID COLLATE utf8mb4_general_ci = CAST(#{userId} AS CHAR)
+		]]>
+	</update>
+
+	<select id="selectTermOfUse" parameterType="hashmap" resultType="CamelMap">
+		<![CDATA[
+		/*queryID = memberLogin.selectTermOfUse*/
+		SELECT MAX(TERMOFUSE_SEQ) as TERMOFUSE_SEQ
+			 , TERMOFUSE_DESC
+			 , FRST_REGIST_ID
+			 , DATE_FORMAT(FRST_REGIST_DATE, '%Y-%m-%d') as FRST_REGIST_DATE
+			 , LAST_MODIFY_ID
+			 , DATE_FORMAT(LAST_MODIFY_DATE, '%Y-%m-%d') as LAST_MODIFY_DATE
+		  FROM TERM_OF_USE
+		 WHERE 1=1
+		   
+		]]>
+	</select>
+
+	<select id="selectTermOfPrivacyInfo" parameterType="hashmap" resultType="CamelMap">
+		<![CDATA[
+		/*queryID = memberLogin.selectTermOfPrivacyInfo */
+		SELECT MAX(TERMOFPIP_SEQ) as TERMOFPIP_SEQ
+			 , TERMOFPIP_DESC
+			 , FRST_REGIST_ID
+			 , DATE_FORMAT(FRST_REGIST_DATE, '%Y-%m-%d') as FRST_REGIST_DATE
+			 , LAST_MODIFY_ID
+			 , DATE_FORMAT(LAST_MODIFY_DATE, '%Y-%m-%d') as LAST_MODIFY_DATE
+		  FROM TERM_OF_PIP
+		 WHERE 1=1
+		]]>
+	</select>
+
+</mapper>
